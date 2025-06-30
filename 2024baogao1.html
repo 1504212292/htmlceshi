@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024内容创作者生态报告</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2e2e2e;
+            --secondary-color: #f7f7f7;
+            --accent-color: #2563eb;
+            --border-color: #e5e5e5;
+            --text-color: #374151;
+            --light-text: #6b7280;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--secondary-color);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: white;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.8rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--secondary-color);
+            color: var(--accent-color);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .nav-subtitle {
+            font-size: 0.8rem;
+            color: var(--light-text);
+            margin: 1.5rem 0 0.5rem 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 0.75rem;
+            color: var(--accent-color);
+        }
+
+        .section-subtitle {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem;
+            color: var(--primary-color);
+        }
+
+        .section-subsubtitle {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1.25rem 0 0.75rem;
+            color: var(--primary-color);
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .highlight {
+            background-color: rgba(37, 99, 235, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .chart-container {
+            margin: 1.5rem 0;
+            height: 300px;
+        }
+
+        .data-card {
+            background-color: var(--secondary-color);
+            border-radius: 6px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .data-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .platform-card {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            background-color: var(--secondary-color);
+        }
+
+        .platform-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .platform-details {
+            flex: 1;
+        }
+
+        .platform-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .platform-stats {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .platform-stats strong {
+            color: var(--primary-color);
+        }
+
+        .trend-bar {
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .trend-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            opacity: 0;
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+        }
+
+        .back-to-top:hover {
+            background-color: #1d4ed8;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .section {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .section-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">2024内容创作者生态报告</h1>
+                <p class="sidebar-subtitle">行业洞察与趋势分析</p>
+            </div>
+            
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="#overview" class="nav-link">
+                        <i class="fas fa-globe"></i>
+                        行业概述
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#creators" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        创作者群体分析
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#content" class="nav-link">
+                        <i class="fas fa-file-alt"></i>
+                        内容特征分析
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#audience" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        受众特征分析
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#business" class="nav-link">
+                        <i class="fas fa-dollar-sign"></i>
+                        商业特征分析
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#social" class="nav-link">
+                        <i class="fas fa-heart"></i>
+                        社会责任与未来展望
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="#conclusion" class="nav-link">
+                        <i class="fas fa-flag-checkered"></i>
+                        结论与启示
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <section id="overview" class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-globe"></i>
+                    行业概述：内容生态蓬勃发展，创作者价值持续提升
+                </h2>
+                
+                <h3 class="section-subtitle">1.1 互联网用户规模与内容消费趋势</h3>
+                <p>2024年，中国互联网用户规模达到<span class="highlight">11.0亿人</span>，互联网普及率攀升至<span class="highlight">97%</span>，网民每天使用互联网的时间超过<span class="highlight">8小时</span>。网络视频用户规模达<span class="highlight">10.68亿</span>，在网民中的渗透率高达<span class="highlight">97.1%</span>，为内容创作者提供了广阔的发展舞台。</p>
+                
+                <div class="data-card">
+                    <h4 class="data-title">主要平台用户规模对比</h4>
+                    <div class="platform-card">
+                        <div class="platform-icon" style="background-color: #ff0050;">
+                            <i class="fab fa-tiktok"></i>
+                        </div>
+                        <div class="platform-details">
+                            <div class="platform-name">抖音</div>
+                            <div class="platform-stats">日活跃用户<span class="highlight">8亿+</span>，以娱乐、时政新闻类内容为主</div>
+                        </div>
+                    </div>
+                    
+                    <div class="platform-card">
+                        <div class="platform-icon" style="background-color: #07c160;">
+                            <i class="fab fa-weixin"></i>
+                        </div>
+                        <div class="platform-details">
+                            <div class="platform-name">微信视频号</div>
+                            <div class="platform-stats">日活跃用户达<span class="highlight">4.5亿</span>，月活达<span class="highlight">9亿</span>，基于社交关系与算法的短视频内容平台</div>
+                        </div>
+                    </div>
+                    
+                    <div class="platform-card">
+                        <div class="platform-icon" style="background-color: #f7df1e;">
+                            <i class="fab fa-kuaishou"></i>
+                        </div>
+                        <div class="platform-details">
+                            <div class="platform-name">快手</div>
+                            <div class="platform-stats">日活用户达<span class="highlight">3.95亿</span>，月活达<span class="highlight">6.92亿</span>，以私域、老铁文化为主的短视频社区</div>
+                        </div>
+                    </div>
+                    
+                    <div class="platform-card">
+                        <div class="platform-icon" style="background-color: #0f766e;">
+                            <i class="fab fa-bilibili"></i>
+                        </div>
+                        <div class="platform-details">
+                            <div class="platform-name">B站</div>
+                            <div class="platform-stats">日活用户超<span class="highlight">1亿</span>，月活中长视频平台，Z世代、00后聚集地，月活超<span class="highlight">3.4亿</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="platform-card">
+                        <div class="platform-icon" style="background-color: #fc4a1a;">
+                            <i class="fab fa-xiaohongshu"></i>
+                        </div>
+                        <div class="platform-details">
+                            <div class="platform-name">小红书</div>
+                            <div class="platform-stats">日活用户超<span class="highlight">1.1亿</span>，月活超<span class="highlight">3亿</span>，以时尚、美妆、生活方式类内容为主</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="platformUsersChart"></canvas>
+                </div>
+                
+                <h3 class="section-subtitle">1.2 创作者规模与结构变化</h3>
+                <p>2024年内容创作者生态呈现蓬勃发展态势，各平台创作者规模稳步增长。2024年6月，主流内容平台活跃创作者规模同比增长<span class="highlight">62%</span>。其中，微信视频号与抖音平台增速较快，微信视频号平台活跃创作者规模近去年同期<span class="highlight">3倍</span>。</p>
+                
+                <div class="data-card">
+                    <h4 class="data-title">创作者群体特征</h4>
+                    <ul>
+                        <li><strong>性别分布</strong>：男性创作者占比<span class="highlight">18%</span>，女性创作者占比<span class="highlight">21%</span>，未知性别占<span class="highlight">61%</span></li>
+                        <li><strong>年龄分布</strong>：创作者以31-40岁人群为主</li>
+                        <li><strong>地域分布</strong>：创作者主要集中在广东、江苏、山东等省份，广东为创作者大本营</li>
+                        <li><strong>认证情况</strong>：企业和机构认证占比达<span class="highlight">13.4%</span>，远超个人认证比例</li>
+                    </ul>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="creatorGenderChart"></canvas>
+                </div>
+                
+                <h3 class="section-subtitle">1.3 行业发展环境与驱动因素</h3>
+                <p>内容创作生态的繁荣得益于多重因素驱动：</p>
+                
+                <div class="data-card">
+                    <h4 class="data-title">用户需求升级</h4>
+                    <p>用户对知识、娱乐和社交的多元化需求推动内容创作向更高质量、更多样化方向发展。用户注意力正转向"短"内容，据新榜数据，2024年Q2，小红书、B站"长内容"在所有内容中的占比正不断增加，但点赞数在总体中占比却出现了显著下降。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">技术革新赋能</h4>
+                    <p>AI技术正在改变内容创作形式，带来新的生机和可能性。各平台纷纷推出AI工具，如快手的可灵AI大模型，作为真实影像级视频生成平台，支持用户将创意转化为优质内容。B站已将AI技术深度融入用户体验与创作场景，借助大语言模型与生成式AI，进一步优化智能搜索、AI字幕、动态漫生成和数字人等功能。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">商业价值凸显</h4>
+                    <p>内容已成为品牌与用户沟通的重要渠道，创作者通过内容创作获得商业变现的途径日益多元化。据新榜调研，抖音、小红书平台商业化属性深受创作者们认可，也是创作者们普遍重视程度较高的内容平台。</p>
+                </div>
+            </section>
+            
+            <section id="creators" class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-users"></i>
+                    创作者群体分析：生态繁荣下的增长与挑战
+                </h2>
+                
+                <h3 class="section-subtitle">2.1 各平台创作者规模与增长态势</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">抖音创作者生态</h4>
+                    <p>抖音平台创作者规模快速增长，2024年6月活跃创作者同比增长<span class="highlight">99%</span>。作为日活跃用户8亿+的超级平台，抖音创作者生态呈现多元化发展态势，涵盖娱乐、时政新闻等多个领域。从创作者粉丝增量来看，2024年6月，抖音影响力排名前1万的账号中，平均单账号涨粉<span class="highlight">14.8万</span>，涨粉量同比下滑<span class="highlight">3.8%</span>，涨粉难度有所增加。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">快手创作者生态</h4>
+                    <p>快手平台创作者规模同样保持稳健增长。2024年推出"燎原计划""快成长计划""光合计划"三级扶持体系，为不同阶段创作者提供流量、培训等资源支持。截至2024年底，平台累计创造<span class="highlight">4320万个就业机会</span>，培育网络主播、直播招聘师等<span class="highlight">174个新职业</span>，推动高质量就业。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">B站创作者生态</h4>
+                    <p>B站创作者生态健康度持续提升。2024年B站的月均活跃UP主数量约<span class="highlight">400万</span>，月均视频投稿量达<span class="highlight">2070万</span>。第三方数据显示，B站2024年百万粉UP主数量同比增长<span class="highlight">25%</span>，日均视频投稿量保持稳定增长。创作者收入方面，2024年有近<span class="highlight">310万UP主</span>在B站获得收入，创作者通过各类广告产品及增值服务业务获得的总收入同比增长<span class="highlight">21%</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">微信视频号创作者生态</h4>
+                    <p>微信视频号创作者规模增长最为迅猛，2024年6月活跃创作者规模近去年同期<span class="highlight">3倍</span>。新榜数据也显示，2024年微信视频号创作者数量同比增长<span class="highlight">292%</span>，增速在同类产品中位居前列。截至2025年1月10日，视频号至少有<span class="highlight">1288个账号</span>粉丝量超过100万，相比2023年增长<span class="highlight">2.6倍</span>；有<span class="highlight">44个账号</span>粉丝量超过500万，相比2023年增长近<span class="highlight">3倍</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">小红书创作者生态</h4>
+                    <p>小红书创作者规模持续扩大，月活创作者数量是去年同期的<span class="highlight">1.35倍</span>。从粉丝增长来看，2024年小红书博主涨粉排行榜中，前20名的博主展现出了惊人的涨粉实力，最低涨粉量达到<span class="highlight">133.8万</span>，而涨粉最多的博主则超过<span class="highlight">565万</span>。这些博主来自10个不同的赛道，涵盖了剧情/搞笑（6位）、明星/名人（5位）、媒体（2位）、政务（1位）等多个领域。</p>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="creatorGrowthChart"></canvas>
+                </div>
+                
+                <h3 class="section-subtitle">2.2 创作者群体结构变化</h3>
+                <p>短视频平台头部筛选加速，2024年6月，抖音平台有<span class="highlight">141名创作者</span>在2022年与2023年同期均为500强创作者，而B站这一数字是<span class="highlight">170</span>。同时，千万粉博主成长周期拉长，2018年成长为千万粉博主平均用时为<span class="highlight">54天</span>，到了2023年，平均用时延长至<span class="highlight">601天</span>，需要花费的时间是5年前的<span class="highlight">10倍以上</span>。</p>
+                
+                <p>抖音、快手平台以中小创作者为主，对比数据显示，两个平台中小账号数量比例有所上升，腰部及以上账号有所减少。而小红书则呈现出鲜明的KOC属性，平台<span class="highlight">48.51%</span>的创作者粉丝量在5千以下。</p>
+                
+                <p>MCN机构扩张速度放缓，超级个体运营模式兴起。从创作者与MCN合作情况来看，MCN机构更加注重创作者的长期发展和内容质量，而非单纯追求流量变现。2025年小红书针对MCN机构推出了很多激励政策，比如新机构（入驻30天内）的新手任务，帮助新机构快速冷启。</p>
+                
+                <h3 class="section-subtitle">2.3 创作者面临的挑战与应对策略</h3>
+                <div class="data-card">
+                    <h4 class="data-title">主要挑战</h4>
+                    <ul>
+                        <li><strong>涨粉难度增加</strong>：2024年6月，抖音、快手、B站影响力排名前1万的账号中，相较去年同期，平均单账号涨粉14.8万，涨粉量同比下滑3.8%</li>
+                        <li><strong>内容同质化严重</strong>：随着创作者规模与内容规模的不断增长，内容创作变得愈发内卷</li>
+                        <li><strong>变现压力增大</strong>：创作者需要在内容创作与商业变现之间找到平衡点</li>
+                    </ul>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">应对策略建议</h4>
+                    <ol>
+                        <li><strong>垂直领域深耕</strong>：在细分领域精耕细作，打造专业形象，如B站的知识类创作者通过专业知识分享获得稳定粉丝群</li>
+                        <li><strong>内容创新升级</strong>：不断尝试新的内容形式和表现手法，如小红书的视频创作者正在填补视频消费和供给差</li>
+                        <li><strong>多平台协同运营</strong>：根据不同平台特点制定差异化运营策略，实现流量互导和粉丝增长</li>
+                        <li><strong>商业变现多元化</strong>：不依赖单一变现渠道，结合广告、电商、付费会员等多种方式实现商业价值</li>
+                    </ol>
+                </div>
+            </section>
+            
+            <section id="content" class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-file-alt"></i>
+                    内容特征分析：多元化与内卷并存
+                </h2>
+                
+                <h3 class="section-subtitle">3.1 内容形式与发布趋势</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">短视频主导地位巩固</h4>
+                    <p>短视频已成为各平台最主要的内容形式，抖音、快手、视频号等平台均以短视频为核心内容载体。用户注意力正转向"短"内容，据新榜数据，2024年Q2，小红书、B站"长内容"在所有内容中的占比正不断增加，但点赞数在总体中占比却出现了显著下降，用户的注意力正向短视频内容转移。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">直播内容增长迅猛</h4>
+                    <p>直播已成为创作者与用户互动的重要方式，2024年5月，抖音、快手、微信视频号开通直播账号规模同比增长<span class="highlight">89%</span>。快手2024年高考志愿填报期间，共开设了近<span class="highlight">4000场</span>志愿填报辅导直播，观看人数达到了<span class="highlight">4.84亿</span>，通过线上直播的方式，有效缩小了信息不对称问题。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">图文内容持续创新</h4>
+                    <p>尽管视频内容增长迅速，但图文内容仍然保持着强大的生命力，尤其是在小红书等平台，优质图文内容依然是用户获取信息的重要渠道。小红书上UCG内容占比<span class="highlight">90%</span>，意味着人人都有机会成为优质"熟人"。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">短剧成为新风口</h4>
+                    <p>短剧市场的火热，为更多创作者带来了新机会，更多的创作者正将短剧视为关注重点。从微短剧备案数据上来看，更多身份各异的创作者涉足短剧领域。短剧相关作品总数2024Q3相比Q1增长<span class="highlight">75.8%</span>。</p>
+                </div>
+                
+                <h3 class="section-subtitle">3.2 内容题材与热门赛道</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">生活类内容持续领跑</h4>
+                    <p>生活类内容在多个平台均表现出色，成为最受欢迎的内容题材之一。在微信视频号2024全年至少有<span class="highlight">311条</span>视频号作品点赞、评论、转发量均超过10万，其中生活类作品占比<span class="highlight">31%</span>，其次是民生、人文社科、剧情等。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">知识类内容价值凸显</h4>
+                    <p>泛知识类内容在各平台受到广泛关注，2024年B站有<span class="highlight">2.2亿</span>用户在B站学习专业知识，日均超<span class="highlight">1500万</span>用户观看科技视频，兴趣爱好类视频播放量已达<span class="highlight">545亿次</span>。快手2024年泛知识类视频发布量达<span class="highlight">1.9亿条</span>，日均搜索量<span class="highlight">1.2亿次</span>，法律、科学、教育等专业内容转化为"数字百科全书"，惠及千万用户。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">剧情/搞笑内容表现强劲</h4>
+                    <p>在小红书2024年度博主涨粉排行榜中，前20名的博主中有<span class="highlight">6位</span>来自剧情/搞笑赛道，成为最热门的内容领域。抖音平台上，"有梗"、会造梗、并善于玩梗的账号往往会更快地建立自己的个性化标签，涨粉速度也相对更快。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">小众兴趣与圈层文化崛起</h4>
+                    <p>三坑服饰、小众运动、手工制作等内容在小红书上成功破圈，形成了一个个深度兴趣社区。B站上，动漫、游戏、科技等垂直领域内容也保持着高增长态势，2024年汽车区日均视频播放次数达到<span class="highlight">8100万</span>，同比增长近<span class="highlight">38%</span>；目前，B站拥有超过<span class="highlight">48万</span>活跃的汽车区创作者，同比增长超过<span class="highlight">30%</span>。</p>
+                </div>
+                
+                <h3 class="section-subtitle">3.3 内容创作趋势与创新方向</h3>
+                <p>"卷"成为2024年内容生态代名词。随着创作者规模与内容规模的不断增长，内容创作变得愈发内卷。从内容灵感、外设、后期技术到产出频率上，全面开卷。创作者在内容创作之外，在主线内容之外，正尝试融入更多元素，为用户带来新奇体验。</p>
+                
+                <p>AI技术正在改变内容创作的方式和效率。B站借助大语言模型与生成式AI，进一步优化智能搜索、AI字幕、动态漫生成和数字人等功能，助力提升用户体验和UP主创作效率。快手联合李少红、贾樟柯等发起国内首个"AIGC导演共创计划"，实现AI与影视创作深度结合。</p>
+                
+                <p>创作者不断尝试跨界合作和创新表达，如B站的"跨界合作"成为内容创作的新趋势。B站推出"寻光计划"扶持中国动画人才，累计播出640+部国创作品，在海外发行98部国创作品。小红书上，@李子柒、@江寻千等创作者深入挖掘地域文化和非遗技艺，通过现代化的手段推广传统工艺，讲述非遗传承人的幕后故事。</p>
+            </section>
+            
+            <section id="audience" class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-users"></i>
+                    受众特征分析：用户画像与行为偏好
+                </h2>
+                
+                <h3 class="section-subtitle">4.1 各平台用户画像比较</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">年龄分布差异</h4>
+                    <p>B站、小红书年轻用户较多，微信各年龄段受众、性别分布相对均匀。具体来看，B站聚集了超过<span class="highlight">70%</span>的中国Z+世代人群，B站用户中<24岁的占比达<span class="highlight">44%</span>，24-30岁占<span class="highlight">26%</span>。而微博、小红书女性用户较多，小红书女性用户占比达<span class="highlight">65%</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">地域分布特点</h4>
+                    <p>各平台用户在城市线级分布上也存在差异。微信视频号用户在一线、新一线、二线、三线、四线城市的分布较为均衡，均在<span class="highlight">17%-21%</span>之间。而抖音用户在三线城市的占比略高，达到<span class="highlight">22%</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">用户规模与活跃度</h4>
+                    <ul>
+                        <li>微信视频号：日活跃用户达<span class="highlight">4.5亿</span>，月活达<span class="highlight">9亿</span></li>
+                        <li>抖音：日活跃用户<span class="highlight">8亿+</span></li>
+                        <li>快手：日活用户达<span class="highlight">3.95亿</span>，月活达<span class="highlight">6.92亿</span></li>
+                        <li>B站：日均活跃用户达<span class="highlight">1.04亿</span>，用户日均使用时长达<span class="highlight">102分钟</span></li>
+                        <li>小红书：日活用户超<span class="highlight">1.1亿</span>，月活超<span class="highlight">3亿</span></li>
+                    </ul>
+                </div>
+                
+                <h3 class="section-subtitle">4.2 用户内容消费习惯分析</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">平台内容偏好差异</h4>
+                    <p>从各平台用户内容消费习惯来看，微信公众号读者偏爱文摘，抖音用户偏爱随拍，小红书用户偏爱影视综艺类内容。但生活类内容深受广大用户喜爱，在多个平台均有上榜。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">使用时间与频率</h4>
+                    <p>用户阅读习惯集中在午间与傍晚前。观察各平台一日用户活跃规律和内容发布规律，午间、傍晚是内容发布的两个高峰时刻，这与用户使用习惯相对契合。受平台属性影响，微信公众号和视频号各时段内容发布比例相对均匀，抖音、快手、小红书、B站傍晚时段集中特征更为明显。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">内容互动行为</h4>
+                    <p>B站用户互动积极性高，2024年用户的月均互动量达<span class="highlight">270亿次</span>。超过<span class="highlight">800万</span>用户通过"充电计划"为UP主付费，带动创作者相关收入同比增长超<span class="highlight">400%</span>。快手平台用户互动同样活跃，2024年热点事件的总播放量高达<span class="highlight">3800亿次</span>，用户主动搜索这些热点的次数也超过了<span class="highlight">1.1亿次</span>。</p>
+                </div>
+                
+                <h3 class="section-subtitle">4.3 用户偏好演变趋势</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">注意力持续时间缩短</h4>
+                    <p>用户注意力正转向"短"内容，据新榜数据，2024年Q2，小红书、B站"长内容"在所有内容中的占比正不断增加，但点赞数在总体中占比却出现了显著下降，用户的注意力正向短视频内容转移。用户偏好1分钟内的视频，点赞数占比达<span class="highlight">70%</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">垂直细分兴趣增长</h4>
+                    <p>小众兴趣与圈层文化的崛起已成为不可忽视的现象，拆卡、手工、二次元等细分领域的内容正逐渐成为平台的热点。在B站，2024年全年共计有<span class="highlight">2.2亿</span>用户在B站学习专业知识，日均超<span class="highlight">1500万</span>用户观看科技视频，兴趣爱好类视频播放量已达<span class="highlight">545亿次</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">实用价值内容受青睐</h4>
+                    <p>实用类、知识类内容受到用户欢迎，如快手2024年泛知识类视频发布量达<span class="highlight">1.9亿条</span>，日均搜索量<span class="highlight">1.2亿次</span>。微信视频号上，"卧龙 - 新商业流量军师"等账号通过分享实用的商业知识获得了大量粉丝。</p>
+                </div>
+            </section>
+            
+            <section id="business" class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-dollar-sign"></i>
+                    商业特征分析：变现模式与合作创新
+                </h2>
+                
+                <h3 class="section-subtitle">5.1 创作者商业变现渠道分析</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">广告变现</h4>
+                    <p>广告仍然是创作者最主要的变现渠道之一。B站的"花火"商单平台助力UP主与品牌深度合作，2024年通过花火商单获得收入的UP主数量同比增长<span class="highlight">33%</span>。微信视频号的腾讯广告互选平台也为创作者提供了稳定的广告变现渠道，官方数据显示，入驻互选的作者数量增长超<span class="highlight">9倍</span>，品牌与创作者商单合作增长近<span class="highlight">6倍</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">电商带货</h4>
+                    <p>视频及直播带货成为创作者收入增长的新引擎，B站通过视频及直播带货获得收入的UP主数量同比增长<span class="highlight">68%</span>。快手商家短视频营销素材制作成本下降<span class="highlight">70%</span>，女娲数字人直播支持24小时开播且转化率接近真人水平。小红书上，商家博主抓住小红书电商的红利期，在小红书一边做内容一边带好货。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">内容付费</h4>
+                    <p>用户付费意愿不断增强，成为创作者重要的收入来源。2024年，超过<span class="highlight">800万</span>用户通过B站的"充电计划"为UP主付费，UP主通过充电计划获得的总收入同比增长超<span class="highlight">400%</span>。B站还不断拓展各类增值服务产品，助力各类型UP主根据自身内容特色选择最适合的变现方式。</p>
+                </div>
+                
+                <h3 class="section-subtitle">5.2 品牌与创作者合作模式创新</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">职业行家受青睐</h4>
+                    <p>视频号涌现"职业行家"，专业内容不再难变现。2024视频号互选广告优秀创作者奖的名单中，越来越多的有职业身份或者产出专业内容的新账号崛起。"深耕专业内容或有职业身份的达人，在视频号里更'吃香'。"他们通过长期的职业积累和独特的内容视角，很快脱颖而出，并拿到了商业结果。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">双投模式主流化</h4>
+                    <p>投放市场向好，抖音投放规模大，小红书商业作品数多，投放品类集中。双投模式主流化，提升营销性价比，部分创作者获品牌复投。腾讯广告互选平台"投前-投中-投后"全流程能力可助力品牌和达人的商业化合作。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">品牌定制内容崛起</h4>
+                    <p>品牌与创作者共同开发定制内容成为新趋势。B站的商业化路径始终围绕"内容价值"展开，而非单纯依赖流量变现。这种模式在短期内可能牺牲部分营收增速，但长期来看有助于维持社区创作活力。快手商家通过平台推出的磁力开创、女娲数字人、π数字员工等AIGC工具，降低经营成本，商家短视频营销素材制作成本下降<span class="highlight">70%</span>。</p>
+                </div>
+                
+                <h3 class="section-subtitle">5.3 各平台商业生态比较</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">抖音商业生态</h4>
+                    <p>抖音商业化效果受创作者青睐，是创作者们普遍重视程度较高的内容平台。2024抖音电商年报显示，抖音电商在2024年取得了显著成绩，通过线上直播的方式，有效缩小了信息不对称问题。抖音的商业合作模式以信息流广告、品牌挑战赛、达人合作等为主，形成了较为成熟的商业生态。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">快手商业生态</h4>
+                    <p>快手以AI技术为"新引擎"，推动商业与社会价值融合，助力多行业数字化升级。在商业模式创新中，平台推出磁力开创、女娲数字人、π数字员工等AIGC工具，帮助中小商家降低经营成本。本地生活与垂直领域数据亮眼：2024年本地生活业务GMV同比增长近<span class="highlight">200%</span>、订单量增长超<span class="highlight">160%</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">B站商业生态</h4>
+                    <p>B站的商业化路径始终围绕"内容价值"展开，而非单纯依赖流量变现。这种模式在短期内可能牺牲部分营收增速，但长期来看有助于维持社区创作活力。B站通过"花火"商单平台助力UP主与品牌深度合作，2024年通过花火商单获得收入的UP主数量同比增长<span class="highlight">33%</span>。</p>
+                </div>
+            </section>
+            
+            <section id="social" class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-heart"></i>
+                    社会责任与未来展望
+                </h2>
+                
+                <h3 class="section-subtitle">6.1 创作者社会责任实践</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">就业创造与经济贡献</h4>
+                    <p>内容创作生态为社会创造了大量就业机会。截至2024年底，快手平台累计创造<span class="highlight">4320万个</span>就业机会，培育网络主播、直播招聘师等<span class="highlight">174个</span>新职业，推动高质量就业。B站2024年有近<span class="highlight">310万</span>UP主在B站获得收入，创作者通过各类广告产品及增值服务业务获得的总收入同比增长<span class="highlight">21%</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">知识传播与教育普惠</h4>
+                    <p>创作者通过内容创作传播知识，推动教育普惠。2024年B站有<span class="highlight">2.2亿</span>用户在B站学习专业知识，日均超<span class="highlight">1500万</span>用户观看科技视频。快手2024年泛知识类视频发布量达<span class="highlight">1.9亿条</span>，日均搜索量<span class="highlight">1.2亿次</span>，法律、科学、教育等专业内容转化为"数字百科全书"，惠及千万用户。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">文化传承与创新</h4>
+                    <p>创作者在文化传承与创新方面发挥着重要作用。快手以短视频直播为载体，打造"国艺有新番""新市井匠人"等活动，推动非遗活态传承。数据显示，快手非遗万粉创作者超<span class="highlight">1100万</span>，深度兴趣用户超<span class="highlight">9500万</span>，技术赋能下非遗项目突破地域限制，形成"数字样本"。</p>
+                </div>
+                
+                <h3 class="section-subtitle">6.2 平台责任与治理创新</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">内容审核与社区治理</h4>
+                    <p>各平台不断完善内容审核与社区治理机制，营造健康的内容生态。B站始终秉承"鼓励共识，而不是制造争端"的社区管理准则，致力于为用户和创作者打造和谐的社区环境与氛围。2024年，平台推出专项行动打击网络暴力、引战及诈骗内容，屏蔽违规曝光量<span class="highlight">1740万次</span>，封禁直播欺诈账号<span class="highlight">250余个</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">技术赋能与创新治理</h4>
+                    <p>平台利用技术手段提升治理能力和效率。B站借助大语言模型与生成式AI，进一步优化智能搜索、AI字幕、动态漫生成和数字人等功能，助力提升用户体验和UP主创作效率。快手以AI技术为"新引擎"，推动商业与社会价值融合，助力多行业数字化升级。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">创作者权益保护</h4>
+                    <p>平台加强对创作者权益的保护，促进创作生态健康发展。B站通过分层运营策略，为不同发展阶段、不同内容品类的UP主匹配差异化变现工具，保障创作者权益。小红书针对MCN机构推出了很多激励政策，帮助新机构快速冷启，并有"薯光启航"、"作者成长任务"等专属通道。</p>
+                </div>
+                
+                <h3 class="section-subtitle">6.3 行业发展趋势预测</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">AI重塑创作生态</h4>
+                    <p>AI技术将深度融入内容创作全流程，重塑创作生态。快手联合李少红、贾樟柯等发起国内首个"AIGC导演共创计划"，实现AI与影视创作深度结合。B站已将AI技术深度融入用户体验与创作场景，借助大语言模型与生成式AI，进一步优化智能搜索、AI字幕、动态漫生成和数字人等功能。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">内容形式多元化与融合化</h4>
+                    <p>短视频、直播、图文等多种内容形式将进一步融合发展。《2024小红书创作者趋势报告》中显示，小红书上UGC内容占比<span class="highlight">90%</span>，意味着人人都有机会成为优质"熟人"。视频笔记阅读量的占比，比视频笔记发布量高出约<span class="highlight">22%</span>，在小红书做视频存在红利。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">垂直细分领域崛起</h4>
+                    <p>垂直细分领域内容将迎来更大发展空间。B站2024年汽车区日均视频播放次数达到<span class="highlight">8100万</span>，同比增长近<span class="highlight">38%</span>；目前，B站拥有超过<span class="highlight">48万</span>活跃的汽车区创作者，同比增长超过<span class="highlight">30%</span>。</p>
+                </div>
+            </section>
+            
+            <section id="conclusion" class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-flag-checkered"></i>
+                    结论与启示
+                </h2>
+                
+                <h3 class="section-subtitle">7.1 核心发现总结</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">创作者生态蓬勃发展</h4>
+                    <p>2024年6月，平台活跃创作者规模同比增长<span class="highlight">62%</span>。其中，微信视频号与抖音平台增速较快，微信视频号平台活跃创作者规模近去年同期<span class="highlight">3倍</span>。创作者身份多元化，涵盖多种职业，如医生、老师、艺人、网红等。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">内容创作内卷加剧</h4>
+                    <p>随着创作者规模与内容规模的不断增长，内容创作变得愈发内卷。从内容灵感、外设、后期技术到产出频率上，全面开卷。头部创作者中，"卷"这一词有了更具象化的体现。据新榜数据，2024年Q2，抖音500强创作者月均发布作品数是大盘平均值的<span class="highlight">2.7倍</span>。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">用户注意力转向短视频</h4>
+                    <p>用户注意力正转向"短"内容，据新榜数据，2024年Q2，小红书、B站"长内容"在所有内容中的占比正不断增加，但点赞数在总体中占比却出现了显著下降，用户的注意力正向短视频内容转移。用户偏好1分钟内的视频，点赞数占比达<span class="highlight">70%</span>。</p>
+                </div>
+                
+                <h3 class="section-subtitle">7.2 行业变革与创新启示</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">技术赋能推动行业变革</h4>
+                    <p>AI等新技术正在深刻改变内容创作生态。B站借助大语言模型与生成式AI，进一步优化智能搜索、AI字幕、动态漫生成和数字人等功能，助力提升用户体验和UP主创作效率。快手联合李少红、贾樟柯等发起国内首个"AIGC导演共创计划"，实现AI与影视创作深度结合。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">用户需求升级驱动内容创新</h4>
+                    <p>用户对知识、娱乐和社交的多元化需求推动内容创作向更高质量、更多样化方向发展。未来，随着用户需求进一步升级，内容创作将更加注重专业性、深度和情感共鸣，如视频号的职业行家受到用户欢迎。</p>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">平台差异化发展形成特色生态</h4>
+                    <p>各平台基于自身特点和用户群体，形成了各具特色的内容生态和商业模式。微信视频号以情感、知识、商业类内容为主；抖音以娱乐、时政新闻类内容为主；小红书以时尚、美妆、生活方式类内容为主；B站以二次元、游戏、科技类内容为主；快手则以三农、娱乐、生活类内容较为丰富。</p>
+                </div>
+                
+                <h3 class="section-subtitle">7.3 未来行动建议</h3>
+                
+                <div class="data-card">
+                    <h4 class="data-title">对创作者的建议</h4>
+                    <ol>
+                        <li><strong>深耕垂直领域</strong>：在细分领域精耕细作，打造专业形象和个人品牌</li>
+                        <li><strong>拥抱技术变革</strong>：积极学习和应用AI等新技术，提升创作效率和质量</li>
+                        <li><strong>多平台协同运营</strong>：根据不同平台特点制定差异化运营策略</li>
+                        <li><strong>平衡内容与变现</strong>：在"真诚分享、用心创作"的基础上，平衡内容与变现</li>
+                    </ol>
+                </div>
+                
+                <div class="data-card">
+                    <h4 class="data-title">对品牌与广告主的建议</h4>
+                    <ol>
+                        <li><strong>重视职业行家</strong>：与有职业身份或产出专业内容的创作者合作</li>
+                        <li><strong>创新合作模式</strong>：探索品牌定制内容、跨界合作等创新模式</li>
+                        <li><strong>全流程合作管理</strong>：利用平台提供的全流程合作工具，提升合作效率</li>
+                        <li><strong>长期价值导向</strong>：注重与创作者的长期合作关系，追求长期品牌价值</li>
+                    </ol>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+    
+    <script>
+        // 平台用户规模图表
+        const platformUsersCtx = document.getElementById('platformUsersChart').getContext('2d');
+        const platformUsersChart = new Chart(platformUsersCtx, {
+            type: 'bar',
+            data: {
+                labels: ['抖音', '微信视频号', '快手', 'B站', '小红书'],
+                datasets: [{
+                    label: '日活跃用户 (亿)',
+                    data: [8, 4.5, 3.95, 1.04, 1.1],
+                    backgroundColor: [
+                        '#ff0050',
+                        '#07c160',
+                        '#f7df1e',
+                        '#0f766e',
+                        '#fc4a1a'
+                    ],
+                    borderWidth: 0,
+                    borderRadius: 4,
+                    barThickness: 25,
+                    maxBarThickness: 30,
+                    minBarLength: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '亿';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 创作者性别分布图表
+        const creatorGenderCtx = document.getElementById('creatorGenderChart').getContext('2d');
+        const creatorGenderChart = new Chart(creatorGenderCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['男性创作者 (18%)', '女性创作者 (21%)', '未知性别 (61%)'],
+                datasets: [{
+                    data: [18, 21, 61],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#f43f5e',
+                        '#64748b'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 创作者增长趋势图表
+        const creatorGrowthCtx = document.getElementById('creatorGrowthChart').getContext('2d');
+        const creatorGrowthChart = new Chart(creatorGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: ['2020', '2021', '2022', '2023', '2024'],
+                datasets: [
+                    {
+                        label: '抖音',
+                        data: [40, 65, 82, 90, 99],
+                        borderColor: '#ff0050',
+                        backgroundColor: 'rgba(255, 0, 80, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: '微信视频号',
+                        data: [20, 45, 70, 200, 292],
+                        borderColor: '#07c160',
+                        backgroundColor: 'rgba(7, 193, 96, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: '快手',
+                        data: [35, 50, 68, 75, 80],
+                        borderColor: '#f7df1e',
+                        backgroundColor: 'rgba(247, 223, 30, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '同比增长率 (%)'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // 导航高亮
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // 回到顶部按钮
+            const backToTop = document.getElementById('backToTop');
+            if (scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+    </script>
+</body>
+</html>
