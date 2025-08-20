@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彩票分析工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF4D4F',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 12px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 6px 16px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .number-ball {
+                @apply w-10 h-10 rounded-full flex items-center justify-center font-medium transition-all duration-200 cursor-pointer;
+            }
+            .number-ball-red {
+                @apply bg-white border-2 border-secondary text-secondary hover:bg-secondary/10;
+            }
+            .number-ball-red.selected {
+                @apply bg-secondary text-white border-secondary;
+            }
+            .number-ball-blue {
+                @apply bg-white border-2 border-primary text-primary hover:bg-primary/10;
+            }
+            .number-ball-blue.selected {
+                @apply bg-primary text-white border-primary;
+            }
+            .filter-tag {
+                @apply px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 cursor-pointer transition-all;
+            }
+            .filter-tag-active {
+                @apply bg-primary/10 text-primary;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-lg font-medium transition-all hover:bg-primary/90 active:bg-primary/80 shadow-md hover:shadow-lg;
+            }
+            .btn-secondary {
+                @apply bg-white text-dark border border-gray-200 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-50 active:bg-gray-100 shadow-sm hover:shadow;
+            }
+            .help-text {
+                @apply text-xs text-gray-500 mt-1 italic;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen">
+    <!-- 顶部导航 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-center">
+            <div class="flex items-center gap-2">
+                <i class="fa fa-bar-chart text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-dark">彩票分析工具</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6">
+        <!-- 过滤和分组结果提示 -->
+        <div id="filter-result-alert" class="hidden bg-primary/10 border border-primary/20 text-primary rounded-lg p-3 mb-6 flex items-center gap-2">
+            <i class="fa fa-info-circle"></i>
+            <div>
+                <p class="font-medium">过滤结果</p>
+                <p class="text-sm" id="filter-result-text">已应用过滤条件，从 10 个组合中筛选出 6 个符合条件的组合</p>
+            </div>
+            <button id="clear-filter" class="ml-auto text-sm text-primary hover:underline">清除过滤</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 左侧：选号区域 -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- 选号框 -->
+                <div class="card">
+                    <h2 class="section-title">
+                        <i class="fa fa-list-ol text-primary"></i>
+                        号码选择
+                    </h2>
+                    
+                    <!-- 红球选号区 -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-medium flex items-center gap-1">
+                                <span class="w-3 h-3 rounded-full bg-secondary inline-block"></span>
+                                红球 (选择6个)
+                            </h3>
+                            <span id="red-ball-count" class="text-sm text-gray-500">已选 0 个</span>
+                        </div>
+                        
+                        <div id="red-balls" class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 gap-2 mb-4">
+                            <!-- 红球将通过JS生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 蓝球选号区 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-medium flex items-center gap-1">
+                                <span class="w-3 h-3 rounded-full bg-primary inline-block"></span>
+                                蓝球 (选择1个)
+                            </h3>
+                            <span id="blue-ball-count" class="text-sm text-gray-500">已选 0 个</span>
+                        </div>
+                        
+                        <div id="blue-balls" class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                            <!-- 蓝球将通过JS生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 选号操作按钮 -->
+                    <div class="flex flex-wrap gap-3 mt-6">
+                        <button id="clear-all" class="btn-secondary flex items-center gap-1">
+                            <i class="fa fa-trash"></i>
+                            <span>全清</span>
+                        </button>
+                        <button id="invert-selection" class="btn-secondary flex items-center gap-1">
+                            <i class="fa fa-exchange"></i>
+                            <span>反选</span>
+                        </button>
+                        <button id="random-select" class="btn-secondary flex items-center gap-1">
+                            <i class="fa fa-random"></i>
+                            <span>机选</span>
+                        </button>
+                        <button id="add-to-combinations" class="btn-primary flex items-center gap-1">
+                            <i class="fa fa-plus-circle"></i>
+                            <span>添加到组合</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 号码组合展示 -->
+                <div class="card">
+                    <h2 class="section-title">
+                        <i class="fa fa-th-large text-primary"></i>
+                        号码组合
+                        <span id="filtered-count-badge" class="hidden ml-2 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
+                            已过滤
+                        </span>
+                    </h2>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div>
+                                <span class="text-gray-500">当前组合数量：</span>
+                                <span id="combination-count" class="font-semibold">0</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="generate-test-combinations" class="text-sm text-primary hover:underline">
+                                    生成测试组合
+                                </button>
+                                <button id="clear-combinations" class="text-sm text-secondary hover:underline">
+                                    清空所有
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="combinations-container" class="max-h-80 overflow-y-auto pr-2 space-y-3">
+                            <div class="text-gray-500 text-center py-10">
+                                暂无号码组合，请选择号码并添加
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分组结果展示 -->
+                <div id="groups-container" class="card hidden">
+                    <h2 class="section-title">
+                        <i class="fa fa-th text-primary"></i>
+                        分组结果
+                    </h2>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div>
+                                <span class="text-gray-500">分组数量：</span>
+                                <span id="group-count" class="font-semibold">0</span>
+                            </div>
+                            <button id="hide-groups" class="text-sm text-gray-500 hover:text-gray-700">
+                                隐藏分组
+                            </button>
+                        </div>
+                        
+                        <div id="groups-content" class="max-h-80 overflow-y-auto pr-2 space-y-4">
+                            <!-- 分组结果将通过JS生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：筛选功能区 -->
+            <div class="space-y-6">
+                <!-- 匹配过滤 -->
+                <div class="card">
+                    <h2 class="section-title">
+                        <i class="fa fa-filter text-primary"></i>
+                        匹配过滤
+                    </h2>
+                    
+                    <!-- 特定号码匹配 -->
+                    <div class="mb-5">
+                        <h3 class="font-medium mb-2 text-sm text-gray-700">特定号码匹配</h3>
+                        <div class="space-y-2">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="must-include-red" class="w-4 h-4 text-primary">
+                                    <label for="must-include-red" class="text-sm">红球必须包含：</label>
+                                    <input type="text" id="include-red-numbers" placeholder="如: 03,05,10" class="text-sm border border-gray-200 rounded px-2 py-1 flex-1">
+                                </div>
+                                <p class="help-text">请使用两位数字，用逗号分隔，如: 01,03,05</p>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="must-exclude-red" class="w-4 h-4 text-primary">
+                                    <label for="must-exclude-red" class="text-sm">红球必须排除：</label>
+                                    <input type="text" id="exclude-red-numbers" placeholder="如: 02,07,15" class="text-sm border border-gray-200 rounded px-2 py-1 flex-1">
+                                </div>
+                                <p class="help-text">请使用两位数字，用逗号分隔，如: 02,04,06</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 号码区间匹配 -->
+                    <div class="mb-5">
+                        <h3 class="font-medium mb-2 text-sm text-gray-700">号码区间匹配</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm">红球小区(1-11)数量：</label>
+                                <div class="flex items-center gap-2">
+                                    <select id="red-small-range" class="text-sm border border-gray-200 rounded px-2 py-1">
+                                        <option value="0-3">0-3</option>
+                                        <option value="1-2">1-2</option>
+                                        <option value="2-3">2-3</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm">红球中区(12-22)数量：</label>
+                                <div class="flex items-center gap-2">
+                                    <select id="red-middle-range" class="text-sm border border-gray-200 rounded px-2 py-1">
+                                        <option value="0-3">0-3</option>
+                                        <option value="1-2">1-2</option>
+                                        <option value="2-3">2-3</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm">红球大区(23-33)数量：</label>
+                                <div class="flex items-center gap-2">
+                                    <select id="red-large-range" class="text-sm border border-gray-200 rounded px-2 py-1">
+                                        <option value="0-3">0-3</option>
+                                        <option value="1-2">1-2</option>
+                                        <option value="2-3">2-3</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 奇偶比例匹配 -->
+                    <div class="mb-5">
+                        <h3 class="font-medium mb-2 text-sm text-gray-700">奇偶比例匹配</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="filter-tag filter-tag-active" data-ratio="3-3">
+                                3奇3偶
+                                <i class="fa fa-times-circle"></i>
+                            </span>
+                            <span class="filter-tag hover:bg-gray-100" data-ratio="4-2">
+                                4奇2偶
+                                <i class="fa fa-times-circle"></i>
+                            </span>
+                            <span class="filter-tag hover:bg-gray-100" data-ratio="2-4">
+                                2奇4偶
+                                <i class="fa fa-times-circle"></i>
+                            </span>
+                            <span class="filter-tag hover:bg-gray-100" data-ratio="5-1">
+                                5奇1偶
+                                <i class="fa fa-times-circle"></i>
+                            </span>
+                            <span class="filter-tag hover:bg-gray-100" data-ratio="1-5">
+                                1奇5偶
+                                <i class="fa fa-times-circle"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <button id="apply-filter" class="w-full btn-primary">应用过滤条件</button>
+                </div>
+                
+                <!-- 平均分组筛选 -->
+                <div class="card">
+                    <h2 class="section-title">
+                        <i class="fa fa-th text-primary"></i>
+                        平均分组筛选
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium block mb-1">分组数量</label>
+                            <select id="group-count-select" class="w-full border border-gray-200 rounded px-3 py-2">
+                                <option value="2">2组</option>
+                                <option value="3" selected>3组</option>
+                                <option value="4">4组</option>
+                                <option value="5">5组</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium block mb-1">分组依据</label>
+                            <select id="group-by-select" class="w-full border border-gray-200 rounded px-3 py-2">
+                                <option value="number" selected>号码大小</option>
+                                <option value="odd-even">奇偶特征</option>
+                                <option value="range">区间分布</option>
+                            </select>
+                        </div>
+                        
+                        <div class="pt-2">
+                            <label class="flex items-center gap-2 mb-3">
+                                <input type="checkbox" id="remove-duplicates" checked class="w-4 h-4 text-primary">
+                                <span class="text-sm">筛选并移除相同注</span>
+                            </label>
+                            
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" id="keep-best-only" class="w-4 h-4 text-primary">
+                                <span class="text-sm">只保留每组最优组合</span>
+                            </label>
+                        </div>
+                        
+                        <button id="perform-grouping" class="w-full btn-primary">执行分组筛选</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-10 py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>彩票分析工具仅供参考，不保证中奖概率提升</p>
+            <p class="mt-1">理性购彩，量力而行</p>
+        </div>
+    </footer>
+
+    <script>
+        // 生成红球号码（1-33）
+        const redBallsContainer = document.getElementById('red-balls');
+        const redBallCountEl = document.getElementById('red-ball-count');
+        let redBalls = [];
+        let selectedRedBalls = [];
+        
+        // 生成蓝球号码（1-16）
+        const blueBallsContainer = document.getElementById('blue-balls');
+        const blueBallCountEl = document.getElementById('blue-ball-count');
+        let blueBalls = [];
+        let selectedBlueBalls = [];
+        
+        // 组合相关
+        const combinationsContainer = document.getElementById('combinations-container');
+        const combinationCountEl = document.getElementById('combination-count');
+        const filteredCountBadge = document.getElementById('filtered-count-badge');
+        let originalCombinations = [];  // 保存原始组合，用于过滤和恢复
+        let currentCombinations = [];   // 当前显示的组合（可能经过过滤）
+        let isFiltered = false;         // 是否处于过滤状态
+        
+        // 分组相关
+        const groupsContainer = document.getElementById('groups-container');
+        const groupsContent = document.getElementById('groups-content');
+        const groupCountEl = document.getElementById('group-count');
+        
+        // 初始化红球
+        for (let i = 1; i <= 33; i++) {
+            const ball = document.createElement('div');
+            const num = i.toString().padStart(2, '0');
+            ball.className = 'number-ball number-ball-red';
+            ball.textContent = num;
+            ball.dataset.number = num;
+            ball.addEventListener('click', () => toggleRedBallSelection(num));
+            redBallsContainer.appendChild(ball);
+            redBalls.push(ball);
+        }
+        
+        // 初始化蓝球
+        for (let i = 1; i <= 16; i++) {
+            const ball = document.createElement('div');
+            const num = i.toString().padStart(2, '0');
+            ball.className = 'number-ball number-ball-blue';
+            ball.textContent = num;
+            ball.dataset.number = num;
+            ball.addEventListener('click', () => toggleBlueBallSelection(num));
+            blueBallsContainer.appendChild(ball);
+            blueBalls.push(ball);
+        }
+        
+        // 切换红球选择状态
+        function toggleRedBallSelection(number) {
+            const index = selectedRedBalls.indexOf(number);
+            
+            if (index === -1) {
+                // 选中红球，最多选6个
+                if (selectedRedBalls.length < 6) {
+                    selectedRedBalls.push(number);
+                    redBalls.find(ball => ball.dataset.number === number).classList.add('selected');
+                }
+            } else {
+                // 取消选中
+                selectedRedBalls.splice(index, 1);
+                redBalls.find(ball => ball.dataset.number === number).classList.remove('selected');
+            }
+            
+            updateBallCounts();
+        }
+        
+        // 切换蓝球选择状态
+        function toggleBlueBallSelection(number) {
+            const index = selectedBlueBalls.indexOf(number);
+            
+            if (index === -1) {
+                // 选中蓝球，最多选1个
+                if (selectedBlueBalls.length < 1) {
+                    selectedBlueBalls.push(number);
+                    blueBalls.find(ball => ball.dataset.number === number).classList.add('selected');
+                }
+            } else {
+                // 取消选中
+                selectedBlueBalls.splice(index, 1);
+                blueBalls.find(ball => ball.dataset.number === number).classList.remove('selected');
+            }
+            
+            updateBallCounts();
+        }
+        
+        // 更新选中数量显示
+        function updateBallCounts() {
+            redBallCountEl.textContent = `已选 ${selectedRedBalls.length} 个`;
+            blueBallCountEl.textContent = `已选 ${selectedBlueBalls.length} 个`;
+        }
+        
+        // 全清按钮
+        document.getElementById('clear-all').addEventListener('click', () => {
+            // 清空红球选择
+            selectedRedBalls.forEach(number => {
+                redBalls.find(ball => ball.dataset.number === number).classList.remove('selected');
+            });
+            selectedRedBalls = [];
+            
+            // 清空蓝球选择
+            selectedBlueBalls.forEach(number => {
+                blueBalls.find(ball => ball.dataset.number === number).classList.remove('selected');
+            });
+            selectedBlueBalls = [];
+            
+            updateBallCounts();
+        });
+        
+        // 反选按钮
+        document.getElementById('invert-selection').addEventListener('click', () => {
+            // 反选红球
+            redBalls.forEach(ball => {
+                const number = ball.dataset.number;
+                const isSelected = selectedRedBalls.includes(number);
+                
+                if (isSelected) {
+                    // 取消选中
+                    selectedRedBalls = selectedRedBalls.filter(n => n !== number);
+                    ball.classList.remove('selected');
+                } else {
+                    // 选中，需检查是否未超过最大数量
+                    if (selectedRedBalls.length < 6) {
+                        selectedRedBalls.push(number);
+                        ball.classList.add('selected');
+                    }
+                }
+            });
+            
+            // 反选蓝球
+            blueBalls.forEach(ball => {
+                const number = ball.dataset.number;
+                const isSelected = selectedBlueBalls.includes(number);
+                
+                if (isSelected) {
+                    // 取消选中
+                    selectedBlueBalls = selectedBlueBalls.filter(n => n !== number);
+                    ball.classList.remove('selected');
+                } else {
+                    // 选中，需检查是否未超过最大数量
+                    if (selectedBlueBalls.length < 1) {
+                        selectedBlueBalls.push(number);
+                        ball.classList.add('selected');
+                    }
+                }
+            });
+            
+            updateBallCounts();
+        });
+        
+        // 机选按钮
+        document.getElementById('random-select').addEventListener('click', () => {
+            // 先清空当前选择
+            document.getElementById('clear-all').click();
+            
+            // 随机选择6个红球
+            const shuffledRed = [...Array(33).keys()].map(i => (i + 1).toString().padStart(2, '0'))
+                .sort(() => Math.random() - 0.5);
+            
+            for (let i = 0; i < 6; i++) {
+                toggleRedBallSelection(shuffledRed[i]);
+            }
+            
+            // 随机选择1个蓝球
+            const randomBlue = Math.floor(Math.random() * 16) + 1;
+            toggleBlueBallSelection(randomBlue.toString().padStart(2, '0'));
+        });
+        
+        // 添加到组合按钮
+        document.getElementById('add-to-combinations').addEventListener('click', () => {
+            // 检查是否选择了足够的号码
+            if (selectedRedBalls.length !== 6 || selectedBlueBalls.length !== 1) {
+                alert('请选择6个红球和1个蓝球');
+                return;
+            }
+            
+            // 排序选中的号码
+            const sortedReds = [...selectedRedBalls].sort((a, b) => parseInt(a) - parseInt(b));
+            const sortedBlues = [...selectedBlueBalls].sort((a, b) => parseInt(a) - parseInt(b));
+            
+            // 创建组合对象
+            const combination = {
+                id: Date.now(),
+                red: sortedReds,
+                blue: sortedBlues[0]
+            };
+            
+            // 检查是否已存在相同组合
+            const isDuplicate = originalCombinations.some(c => 
+                JSON.stringify(c.red) === JSON.stringify(combination.red) && 
+                c.blue === combination.blue
+            );
+            
+            if (isDuplicate) {
+                alert('该组合已存在');
+                return;
+            }
+            
+            // 添加到组合列表
+            originalCombinations.push(combination);
+            currentCombinations = [...originalCombinations];
+            renderCombinations();
+            
+            // 清空当前选择
+            document.getElementById('clear-all').click();
+        });
+        
+        // 生成测试组合
+        document.getElementById('generate-test-combinations').addEventListener('click', () => {
+            // 生成10个随机测试组合
+            originalCombinations = [];
+            
+            for (let i = 0; i < 10; i++) {
+                // 生成6个不重复的红球
+                const reds = [];
+                while (reds.length < 6) {
+                    const num = Math.floor(Math.random() * 33) + 1;
+                    const numStr = num.toString().padStart(2, '0');
+                    if (!reds.includes(numStr)) {
+                        reds.push(numStr);
+                    }
+                }
+                reds.sort((a, b) => parseInt(a) - parseInt(b));
+                
+                // 生成1个蓝球
+                const blue = (Math.floor(Math.random() * 16) + 1).toString().padStart(2, '0');
+                
+                originalCombinations.push({
+                    id: Date.now() + i,
+                    red: reds,
+                    blue: blue
+                });
+            }
+            
+            currentCombinations = [...originalCombinations];
+            renderCombinations();
+            alert('已生成10个测试组合');
+        });
+        
+        // 清空所有组合
+        document.getElementById('clear-combinations').addEventListener('click', () => {
+            if (confirm('确定要清空所有组合吗？')) {
+                originalCombinations = [];
+                currentCombinations = [];
+                isFiltered = false;
+                filteredCountBadge.classList.add('hidden');
+                renderCombinations();
+                document.getElementById('filter-result-alert').classList.add('hidden');
+                groupsContainer.classList.add('hidden');
+            }
+        });
+        
+        // 渲染组合列表
+        function renderCombinations() {
+            if (currentCombinations.length === 0) {
+                combinationsContainer.innerHTML = `
+                    <div class="text-gray-500 text-center py-10">
+                        暂无号码组合，请选择号码并添加
+                    </div>
+                `;
+                combinationCountEl.textContent = '0';
+                return;
+            }
+            
+            combinationCountEl.textContent = currentCombinations.length;
+            combinationsContainer.innerHTML = '';
+            
+            currentCombinations.forEach(combination => {
+                const combinationEl = document.createElement('div');
+                combinationEl.className = 'flex items-center justify-between bg-neutral rounded-lg p-3';
+                
+                // 红球部分
+                const redBallsEl = document.createElement('div');
+                redBallsEl.className = 'flex gap-1 flex-wrap';
+                
+                combination.red.forEach(num => {
+                    const ball = document.createElement('div');
+                    ball.className = 'w-7 h-7 rounded-full bg-secondary text-white text-xs flex items-center justify-center';
+                    ball.textContent = num;
+                    redBallsEl.appendChild(ball);
+                });
+                
+                // 蓝球部分
+                const blueBallEl = document.createElement('div');
+                blueBallEl.className = 'w-7 h-7 rounded-full bg-primary text-white text-xs flex items-center justify-center ml-2';
+                blueBallEl.textContent = combination.blue;
+                
+                // 删除按钮
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'text-gray-400 hover:text-secondary transition-colors';
+                deleteBtn.innerHTML = '<i class="fa fa-times"></i>';
+                deleteBtn.addEventListener('click', () => {
+                    // 从原始组合中删除
+                    originalCombinations = originalCombinations.filter(c => c.id !== combination.id);
+                    
+                    // 如果处于过滤状态，也从当前组合中删除
+                    currentCombinations = currentCombinations.filter(c => c.id !== combination.id);
+                    
+                    renderCombinations();
+                });
+                
+                const ballsContainer = document.createElement('div');
+                ballsContainer.className = 'flex';
+                ballsContainer.appendChild(redBallsEl);
+                ballsContainer.appendChild(blueBallEl);
+                
+                combinationEl.appendChild(ballsContainer);
+                combinationEl.appendChild(deleteBtn);
+                
+                combinationsContainer.appendChild(combinationEl);
+            });
+        }
+        
+        // 过滤标签点击事件
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                tag.classList.toggle('filter-tag-active');
+                tag.classList.toggle('hover:bg-gray-100');
+            });
+        });
+        
+        // 应用过滤条件
+        document.getElementById('apply-filter').addEventListener('click', () => {
+            if (originalCombinations.length === 0) {
+                alert('请先添加号码组合');
+                return;
+            }
+            
+            // 获取过滤条件
+            const mustIncludeRed = document.getElementById('must-include-red').checked;
+            const mustExcludeRed = document.getElementById('must-exclude-red').checked;
+            
+            // 处理必须包含的红球，确保格式正确（两位数字）
+            let includeRed = [];
+            if (mustIncludeRed) {
+                includeRed = document.getElementById('include-red-numbers').value
+                    .split(',')
+                    .map(n => n.trim())
+                    .filter(n => n)
+                    // 确保是两位数字格式
+                    .map(n => {
+                        const num = parseInt(n);
+                        return isNaN(num) ? null : num.toString().padStart(2, '0');
+                    })
+                    .filter(n => n !== null);
+                
+                // 验证输入的号码是否有效
+                if (includeRed.length === 0) {
+                    alert('请输入有效的红球号码，格式如: 03,05,10');
+                    return;
+                }
+                
+                const invalidNumbers = includeRed.filter(n => parseInt(n) < 1 || parseInt(n) > 33);
+                if (invalidNumbers.length > 0) {
+                    alert(`红球号码必须在1-33之间，无效号码: ${invalidNumbers.join(',')}`);
+                    return;
+                }
+            }
+            
+            // 处理必须排除的红球
+            let excludeRed = [];
+            if (mustExcludeRed) {
+                excludeRed = document.getElementById('exclude-red-numbers').value
+                    .split(',')
+                    .map(n => n.trim())
+                    .filter(n => n)
+                    // 确保是两位数字格式
+                    .map(n => {
+                        const num = parseInt(n);
+                        return isNaN(num) ? null : num.toString().padStart(2, '0');
+                    })
+                    .filter(n => n !== null);
+                
+                const invalidNumbers = excludeRed.filter(n => parseInt(n) < 1 || parseInt(n) > 33);
+                if (invalidNumbers.length > 0) {
+                    alert(`红球号码必须在1-33之间，无效号码: ${invalidNumbers.join(',')}`);
+                    return;
+                }
+            }
+            
+            const filterConditions = {
+                includeRed,
+                excludeRed,
+                redSmallRange: document.getElementById('red-small-range').value,
+                redMiddleRange: document.getElementById('red-middle-range').value,
+                redLargeRange: document.getElementById('red-large-range').value,
+                oddEvenRatios: Array.from(document.querySelectorAll('.filter-tag-active'))
+                    .map(tag => tag.dataset.ratio)
+            };
+            
+            // 应用过滤
+            let filtered = [...originalCombinations];
+            
+            // 1. 应用必须包含的红球过滤
+            if (filterConditions.includeRed.length > 0) {
+                filtered = filtered.filter(comb => {
+                    return filterConditions.includeRed.every(num => comb.red.includes(num));
+                });
+            }
+            
+            // 2. 应用必须排除的红球过滤
+            if (filterConditions.excludeRed.length > 0) {
+                filtered = filtered.filter(comb => {
+                    return !filterConditions.excludeRed.some(num => comb.red.includes(num));
+                });
+            }
+            
+            // 3. 应用区间过滤
+            // 小区(1-11)
+            const [minSmall, maxSmall] = filterConditions.redSmallRange.split('-').map(Number);
+            filtered = filtered.filter(comb => {
+                const count = comb.red.filter(num => parseInt(num) >= 1 && parseInt(num) <= 11).length;
+                return count >= minSmall && count <= maxSmall;
+            });
+            
+            // 中区(12-22)
+            const [minMiddle, maxMiddle] = filterConditions.redMiddleRange.split('-').map(Number);
+            filtered = filtered.filter(comb => {
+                const count = comb.red.filter(num => parseInt(num) >= 12 && parseInt(num) <= 22).length;
+                return count >= minMiddle && count <= maxMiddle;
+            });
+            
+            // 大区(23-33)
+            const [minLarge, maxLarge] = filterConditions.redLargeRange.split('-').map(Number);
+            filtered = filtered.filter(comb => {
+                const count = comb.red.filter(num => parseInt(num) >= 23 && parseInt(num) <= 33).length;
+                return count >= minLarge && count <= maxLarge;
+            });
+            
+            // 4. 应用奇偶比例过滤
+            if (filterConditions.oddEvenRatios.length > 0) {
+                filtered = filtered.filter(comb => {
+                    const oddCount = comb.red.filter(num => parseInt(num) % 2 !== 0).length;
+                    const evenCount = 6 - oddCount;
+                    const ratio = `${oddCount}-${evenCount}`;
+                    return filterConditions.oddEvenRatios.includes(ratio);
+                });
+            }
+            
+            // 更新当前组合并显示结果
+            currentCombinations = filtered;
+            isFiltered = true;
+            filteredCountBadge.classList.remove('hidden');
+            renderCombinations();
+            
+            // 显示过滤结果提示
+            const filterResultAlert = document.getElementById('filter-result-alert');
+            const filterResultText = document.getElementById('filter-result-text');
+            filterResultText.textContent = `已应用过滤条件，从 ${originalCombinations.length} 个组合中筛选出 ${filtered.length} 个符合条件的组合`;
+            filterResultAlert.classList.remove('hidden');
+            
+            // 隐藏分组结果
+            groupsContainer.classList.add('hidden');
+        });
+        
+        // 清除过滤
+        document.getElementById('clear-filter').addEventListener('click', () => {
+            currentCombinations = [...originalCombinations];
+            isFiltered = false;
+            filteredCountBadge.classList.add('hidden');
+            renderCombinations();
+            document.getElementById('filter-result-alert').classList.add('hidden');
+        });
+        
+        // 执行分组筛选
+        document.getElementById('perform-grouping').addEventListener('click', () => {
+            if (currentCombinations.length === 0) {
+                alert('请先添加号码组合');
+                return;
+            }
+            
+            const groupCount = parseInt(document.getElementById('group-count-select').value);
+            const groupBy = document.getElementById('group-by-select').value;
+            const removeDuplicates = document.getElementById('remove-duplicates').checked;
+            const keepBestOnly = document.getElementById('keep-best-only').checked;
+            
+            // 1. 先处理重复项
+            let combinationsToGroup = [...currentCombinations];
+            
+            if (removeDuplicates) {
+                const uniqueCombinations = [];
+                const seen = new Set();
+                
+                combinationsToGroup.forEach(comb => {
+                    const key = JSON.stringify(comb.red) + comb.blue;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniqueCombinations.push(comb);
+                    }
+                });
+                
+                combinationsToGroup = uniqueCombinations;
+                
+                if (uniqueCombinations.length < currentCombinations.length) {
+                    alert(`已移除 ${currentCombinations.length - uniqueCombinations.length} 个重复组合`);
+                }
+            }
+            
+            // 2. 根据选择的方式进行分组
+            let groups = [];
+            
+            if (groupBy === 'number') {
+                // 按号码大小分组（根据红球总和）
+                combinationsToGroup.forEach(comb => {
+                    // 计算红球总和
+                    const sum = comb.red.reduce((total, num) => total + parseInt(num), 0);
+                    comb.sum = sum;
+                });
+                
+                // 排序
+                combinationsToGroup.sort((a, b) => a.sum - b.sum);
+                
+                // 平均分到各组
+                const itemsPerGroup = Math.ceil(combinationsToGroup.length / groupCount);
+                groups = [];
+                
+                for (let i = 0; i < groupCount; i++) {
+                    const start = i * itemsPerGroup;
+                    const end = start + itemsPerGroup;
+                    groups.push(combinationsToGroup.slice(start, end));
+                }
+            } 
+            else if (groupBy === 'odd-even') {
+                // 按奇偶特征分组
+                const groupsMap = {};
+                
+                // 先按奇偶比例分组
+                combinationsToGroup.forEach(comb => {
+                    const oddCount = comb.red.filter(num => parseInt(num) % 2 !== 0).length;
+                    const ratio = `${oddCount}-${6 - oddCount}`;
+                    
+                    if (!groupsMap[ratio]) {
+                        groupsMap[ratio] = [];
+                    }
+                    groupsMap[ratio].push(comb);
+                });
+                
+                // 转换为数组并确保达到指定的分组数量
+                groups = Object.values(groupsMap);
+                
+                // 如果分组数量不足，拆分最大的组
+                while (groups.length < groupCount && groups.length > 0) {
+                    // 找到最大的组
+                    let largestIndex = 0;
+                    let largestSize = groups[0].length;
+                    
+                    for (let i = 1; i < groups.length; i++) {
+                        if (groups[i].length > largestSize) {
+                            largestSize = groups[i].length;
+                            largestIndex = i;
+                        }
+                    }
+                    
+                    // 拆分最大的组
+                    const largestGroup = groups[largestIndex];
+                    const mid = Math.ceil(largestGroup.length / 2);
+                    const group1 = largestGroup.slice(0, mid);
+                    const group2 = largestGroup.slice(mid);
+                    
+                    // 替换原组为两个新组
+                    groups.splice(largestIndex, 1, group1, group2);
+                }
+                
+                // 如果分组数量还是不足，创建空组
+                while (groups.length < groupCount) {
+                    groups.push([]);
+                }
+            } 
+            else if (groupBy === 'range') {
+                // 按区间分布分组
+                const groupsMap = {};
+                
+                combinationsToGroup.forEach(comb => {
+                    // 计算各区间数量
+                    const small = comb.red.filter(num => parseInt(num) >= 1 && parseInt(num) <= 11).length;
+                    const middle = comb.red.filter(num => parseInt(num) >= 12 && parseInt(num) <= 22).length;
+                    const large = comb.red.filter(num => parseInt(num) >= 23 && parseInt(num) <= 33).length;
+                    
+                    const rangeKey = `${small}-${middle}-${large}`;
+                    
+                    if (!groupsMap[rangeKey]) {
+                        groupsMap[rangeKey] = [];
+                    }
+                    groupsMap[rangeKey].push(comb);
+                });
+                
+                // 转换为数组并确保达到指定的分组数量
+                groups = Object.values(groupsMap);
+                
+                // 如果分组数量不足，拆分最大的组
+                while (groups.length < groupCount && groups.length > 0) {
+                    // 找到最大的组
+                    let largestIndex = 0;
+                    let largestSize = groups[0].length;
+                    
+                    for (let i = 1; i < groups.length; i++) {
+                        if (groups[i].length > largestSize) {
+                            largestSize = groups[i].length;
+                            largestIndex = i;
+                        }
+                    }
+                    
+                    // 拆分最大的组
+                    const largestGroup = groups[largestIndex];
+                    const mid = Math.ceil(largestGroup.length / 2);
+                    const group1 = largestGroup.slice(0, mid);
+                    const group2 = largestGroup.slice(mid);
+                    
+                    // 替换原组为两个新组
+                    groups.splice(largestIndex, 1, group1, group2);
+                }
+                
+                // 如果分组数量还是不足，创建空组
+                while (groups.length < groupCount) {
+                    groups.push([]);
+                }
+            }
+            
+            // 3. 如果需要，只保留每组最优组合（这里简单取每组第一个）
+            if (keepBestOnly) {
+                groups = groups.map(group => group.length > 0 ? [group[0]] : []);
+            }
+            
+            // 4. 显示分组结果
+            renderGroups(groups, groupBy);
+        });
+        
+        // 渲染分组结果
+        function renderGroups(groups, groupBy) {
+            groupsContent.innerHTML = '';
+            groupCountEl.textContent = groups.length;
+            
+            groups.forEach((group, index) => {
+                const groupEl = document.createElement('div');
+                groupEl.className = 'group-item';
+                
+                // 分组标题
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'group-header';
+                
+                let groupTypeText = '';
+                switch (groupBy) {
+                    case 'number':
+                        groupTypeText = '按号码大小';
+                        break;
+                    case 'odd-even':
+                        groupTypeText = '按奇偶特征';
+                        break;
+                    case 'range':
+                        groupTypeText = '按区间分布';
+                        break;
+                }
+                
+                groupHeader.innerHTML = `
+                    <span>第 ${index + 1} 组（${groupTypeText}）</span>
+                    <span class="text-xs text-gray-500">${group.length} 个组合</span>
+                `;
+                
+                groupEl.appendChild(groupHeader);
+                
+                // 组合列表
+                const combinationsList = document.createElement('div');
+                combinationsList.className = 'space-y-2 max-h-40 overflow-y-auto pr-1';
+                
+                if (group.length === 0) {
+                    combinationsList.innerHTML = '<div class="text-xs text-gray-500 text-center py-2">该组无组合</div>';
+                } else {
+                    group.forEach(comb => {
+                        const combEl = document.createElement('div');
+                        combEl.className = 'flex items-center justify-between bg-neutral/50 rounded p-2';
+                        
+                        // 红球
+                        const redsEl = document.createElement('div');
+                        redsEl.className = 'flex gap-0.5';
+                        
+                        comb.red.forEach(num => {
+                            const ball = document.createElement('div');
+                            ball.className = 'w-5 h-5 rounded-full bg-secondary text-white text-[10px] flex items-center justify-center';
+                            ball.textContent = num;
+                            redsEl.appendChild(ball);
+                        });
+                        
+                        // 蓝球
+                        const blueEl = document.createElement('div');
+                        blueEl.className = 'w-5 h-5 rounded-full bg-primary text-white text-[10px] flex items-center justify-center ml-1';
+                        blueEl.textContent = comb.blue;
+                        
+                        // 操作按钮
+                        const actionsEl = document.createElement('div');
+                        actionsEl.className = 'ml-2';
+                        actionsEl.innerHTML = `
+                            <button class="text-xs text-primary hover:underline" onclick="addToMainCombinations(${comb.id})">
+                                <i class="fa fa-plus-circle"></i>
+                            </button>
+                        `;
+                        
+                        const ballsContainer = document.createElement('div');
+                        ballsContainer.className = 'flex';
+                        ballsContainer.appendChild(redsEl);
+                        ballsContainer.appendChild(blueEl);
+                        
+                        combEl.appendChild(ballsContainer);
+                        combEl.appendChild(actionsEl);
+                        
+                        combinationsList.appendChild(combEl);
+                    });
+                }
+                
+                groupEl.appendChild(combinationsList);
+                groupsContent.appendChild(groupEl);
+            });
+            
+            // 显示分组容器
+            groupsContainer.classList.remove('hidden');
+        }
+        
+        // 从分组添加到主组合（全局函数，供内联事件调用）
+        window.addToMainCombinations = function(combId) {
+            // 查找组合
+            const combination = originalCombinations.find(c => c.id === combId);
+            if (!combination) return;
+            
+            // 检查是否已存在
+            const exists = originalCombinations.some(c => 
+                JSON.stringify(c.red) === JSON.stringify(combination.red) && 
+                c.blue === combination.blue
+            );
+            
+            if (!exists) {
+                originalCombinations.push(combination);
+                currentCombinations = [...originalCombinations];
+                renderCombinations();
+                alert('已添加到主组合');
+            } else {
+                alert('该组合已在主组合中');
+            }
+        };
+        
+        // 隐藏分组
+        document.getElementById('hide-groups').addEventListener('click', () => {
+            groupsContainer.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
